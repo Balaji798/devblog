@@ -1,0 +1,302 @@
+[
+  {
+    "id": 0,
+    "category": "users",
+    "file": "users-00.webp",
+    "path": "/images/avatars/users/users-00.webp"
+  },
+  {
+    "id": 1,
+    "category": "users",
+    "file": "users-01.webp",
+    "path": "/images/avatars/users/users-01.webp"
+  },
+  {
+    "id": 2,
+    "category": "users",
+    "file": "users-02.webp",
+    "path": "/images/avatars/users/users-02.webp"
+  },
+  {
+    "id": 3,
+    "category": "users",
+    "file": "users-03.webp",
+    "path": "/images/avatars/users/users-03.webp"
+  },
+  {
+    "id": 4,
+    "category": "users",
+    "file": "users-04.webp",
+    "path": "/images/avatars/users/users-04.webp"
+  },
+  {
+    "id": 5,
+    "category": "users",
+    "file": "users-05.webp",
+    "path": "/images/avatars/users/users-05.webp"
+  },
+  {
+    "id": 6,
+    "category": "users",
+    "file": "users-06.webp",
+    "path": "/images/avatars/users/users-06.webp"
+  },
+  {
+    "id": 7,
+    "category": "users",
+    "file": "users-07.webp",
+    "path": "/images/avatars/users/users-07.webp"
+  },
+  {
+    "id": 8,
+    "category": "users",
+    "file": "users-08.webp",
+    "path": "/images/avatars/users/users-08.webp"
+  },
+  {
+    "id": 9,
+    "category": "users",
+    "file": "users-09.webp",
+    "path": "/images/avatars/users/users-09.webp"
+  },
+  {
+    "id": 10,
+    "category": "users",
+    "file": "users-10.webp",
+    "path": "/images/avatars/users/users-10.webp"
+  },
+  {
+    "id": 11,
+    "category": "users",
+    "file": "users-11.webp",
+    "path": "/images/avatars/users/users-11.webp"
+  },
+  {
+    "id": 12,
+    "category": "users",
+    "file": "users-12.webp",
+    "path": "/images/avatars/users/users-12.webp"
+  },
+  {
+    "id": 13,
+    "category": "users",
+    "file": "users-13.webp",
+    "path": "/images/avatars/users/users-13.webp"
+  },
+  {
+    "id": 14,
+    "category": "users",
+    "file": "users-14.webp",
+    "path": "/images/avatars/users/users-14.webp"
+  },
+  {
+    "id": 15,
+    "category": "users",
+    "file": "users-15.webp",
+    "path": "/images/avatars/users/users-15.webp"
+  },
+  {
+    "id": 16,
+    "category": "users",
+    "file": "users-16.webp",
+    "path": "/images/avatars/users/users-16.webp"
+  },
+  {
+    "id": 17,
+    "category": "users",
+    "file": "users-17.webp",
+    "path": "/images/avatars/users/users-17.webp"
+  },
+  {
+    "id": 18,
+    "category": "users",
+    "file": "users-18.webp",
+    "path": "/images/avatars/users/users-18.webp"
+  },
+  {
+    "id": 19,
+    "category": "users",
+    "file": "users-19.webp",
+    "path": "/images/avatars/users/users-19.webp"
+  },
+  {
+    "id": 20,
+    "category": "users",
+    "file": "users-20.webp",
+    "path": "/images/avatars/users/users-20.webp"
+  },
+  {
+    "id": 21,
+    "category": "users",
+    "file": "users-21.webp",
+    "path": "/images/avatars/users/users-21.webp"
+  },
+  {
+    "id": 22,
+    "category": "users",
+    "file": "users-22.webp",
+    "path": "/images/avatars/users/users-22.webp"
+  },
+  {
+    "id": 23,
+    "category": "users",
+    "file": "users-23.webp",
+    "path": "/images/avatars/users/users-23.webp"
+  },
+  {
+    "id": 24,
+    "category": "users",
+    "file": "users-24.webp",
+    "path": "/images/avatars/users/users-24.webp"
+  },
+  {
+    "id": 25,
+    "category": "users",
+    "file": "users-25.webp",
+    "path": "/images/avatars/users/users-25.webp"
+  },
+  {
+    "id": 26,
+    "category": "users",
+    "file": "users-26.webp",
+    "path": "/images/avatars/users/users-26.webp"
+  },
+  {
+    "id": 27,
+    "category": "users",
+    "file": "users-27.webp",
+    "path": "/images/avatars/users/users-27.webp"
+  },
+  {
+    "id": 28,
+    "category": "users",
+    "file": "users-28.webp",
+    "path": "/images/avatars/users/users-28.webp"
+  },
+  {
+    "id": 29,
+    "category": "users",
+    "file": "users-29.webp",
+    "path": "/images/avatars/users/users-29.webp"
+  },
+  {
+    "id": 30,
+    "category": "pets",
+    "file": "pets-30.webp",
+    "path": "/images/avatars/pets/pets-30.webp"
+  },
+  {
+    "id": 31,
+    "category": "pets",
+    "file": "pets-31.webp",
+    "path": "/images/avatars/pets/pets-31.webp"
+  },
+  {
+    "id": 32,
+    "category": "pets",
+    "file": "pets-32.webp",
+    "path": "/images/avatars/pets/pets-32.webp"
+  },
+  {
+    "id": 33,
+    "category": "pets",
+    "file": "pets-33.webp",
+    "path": "/images/avatars/pets/pets-33.webp"
+  },
+  {
+    "id": 34,
+    "category": "pets",
+    "file": "pets-34.webp",
+    "path": "/images/avatars/pets/pets-34.webp"
+  },
+  {
+    "id": 35,
+    "category": "users",
+    "file": "users-35.webp",
+    "path": "/images/avatars/users/users-35.webp"
+  },
+  {
+    "id": 36,
+    "category": "users",
+    "file": "users-36.webp",
+    "path": "/images/avatars/users/users-36.webp"
+  },
+  {
+    "id": 37,
+    "category": "users",
+    "file": "users-37.webp",
+    "path": "/images/avatars/users/users-37.webp"
+  },
+  {
+    "id": 38,
+    "category": "users",
+    "file": "users-38.webp",
+    "path": "/images/avatars/users/users-38.webp"
+  },
+  {
+    "id": 39,
+    "category": "users",
+    "file": "users-39.webp",
+    "path": "/images/avatars/users/users-39.webp"
+  },
+  {
+    "id": 40,
+    "category": "other",
+    "file": "other-40.webp",
+    "path": "/images/avatars/other/other-40.webp"
+  },
+  {
+    "id": 41,
+    "category": "other",
+    "file": "other-41.webp",
+    "path": "/images/avatars/other/other-41.webp"
+  },
+  {
+    "id": 42,
+    "category": "other",
+    "file": "other-42.webp",
+    "path": "/images/avatars/other/other-42.webp"
+  },
+  {
+    "id": 43,
+    "category": "other",
+    "file": "other-43.webp",
+    "path": "/images/avatars/other/other-43.webp"
+  },
+  {
+    "id": 44,
+    "category": "other",
+    "file": "other-44.webp",
+    "path": "/images/avatars/other/other-44.webp"
+  },
+  {
+    "id": 45,
+    "category": "other",
+    "file": "other-45.webp",
+    "path": "/images/avatars/other/other-45.webp"
+  },
+  {
+    "id": 46,
+    "category": "other",
+    "file": "other-46.webp",
+    "path": "/images/avatars/other/other-46.webp"
+  },
+  {
+    "id": 47,
+    "category": "other",
+    "file": "other-47.webp",
+    "path": "/images/avatars/other/other-47.webp"
+  },
+  {
+    "id": 48,
+    "category": "other",
+    "file": "other-48.webp",
+    "path": "/images/avatars/other/other-48.webp"
+  },
+  {
+    "id": 49,
+    "category": "other",
+    "file": "other-49.webp",
+    "path": "/images/avatars/other/other-49.webp"
+  }
+]

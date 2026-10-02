@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./devblog-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://mongo:27017/devblog
+      - JWT_SECRET=supersecret
+      - JWT_REFRESH_SECRET=superrefreshsecret
+      - NODE_ENV=production
+      - FRONTEND_URL=http://localhost
+    depends_on:
+      - mongo
+    networks:
+      - devblog-net
+
+  frontend:
+    build:
+      context: ./devblog-frontend
+    ports:
+      - "80:80"
+    environment:
+      - VITE_API_URL=http://localhost:5000/api/v1
+    depends_on:
+      - backend
+    networks:
+      - devblog-net
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - devblog-net
+
+volumes:
+  mongo_data:
+
+networks:
+  devblog-net:
+    driver: bridge
