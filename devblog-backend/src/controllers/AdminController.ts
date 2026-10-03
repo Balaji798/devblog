@@ -27,12 +27,14 @@ export class AdminController {
 
   static async getUsers(req: Request, res: Response, next: NextFunction) {
     try {
-      // Exclude fellow administrators to strictly safeguard the tier hierarchy
-      const users = await User.find({ role: { $ne: "ADMIN" } })
+      const users = await User.find()
         .select("-password -refreshTokenHash")
         .sort({ createdAt: -1 });
-      console.log(JSON.stringify(users, null, 2));
-      res.status(200).json({ success: true, data: { users } });
+
+      res.status(200).json({
+        success: true,
+        data: { users },
+      });
     } catch (error) {
       next(error);
     }
@@ -41,27 +43,80 @@ export class AdminController {
   static async updateUser(req: Request, res: Response, next: NextFunction) {
     try {
       const { role, isActive } = req.body;
-      const updates: any = {};
+      const { id } = req.params;
 
-      if (role !== undefined) updates.role = role;
+      if (id === (req as any).user?.id) {
+        return res.status(400).json({
+          success: false,
+          error: "You cannot modify your own admin account here",
+        });
+      }
+
+      if (role === undefined && isActive === undefined) {
+        return res.status(400).json({
+          success: false,
+          error: "No valid updates provided",
+        });
+      }
+
+      if (role !== undefined && !["ADMIN", "USER"].includes(role)) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid user role",
+        });
+      }
+
+      if (isActive !== undefined && typeof isActive !== "boolean") {
+        return res.status(400).json({
+          success: false,
+          error: "isActive must be a boolean",
+        });
+      }
+
+      const targetUser = await User.findById(id);
+
+      if (!targetUser) {
+        return res.status(404).json({
+          success: false,
+          error: "User not found",
+        });
+      }
+
+      // Do not allow an admin to deactivate or demote another admin.
+      // This protects the administrator accounts from accidental lockout.
+      if (
+        targetUser.role === "ADMIN" &&
+        (role === "USER" || isActive === false)
+      ) {
+        return res.status(403).json({
+          success: false,
+          error:
+            "Admin accounts cannot be demoted or deactivated through this operation",
+        });
+      }
+
+      if (role !== undefined) {
+        targetUser.role = role;
+      }
+
       if (isActive !== undefined) {
-        updates.isActive = isActive;
+        targetUser.isActive = isActive;
+
         if (!isActive) {
-          // Strict user deactivation requirement: forcefully revoke token hash
-          updates.refreshTokenHash = undefined;
+          targetUser.refreshTokenHash = undefined;
         }
       }
 
-      const user = await User.findByIdAndUpdate(req.params.id, updates, {
-        new: true,
-      }).select("-password -refreshTokenHash");
-      if (!user) {
-        return res
-          .status(404)
-          .json({ success: false, error: "User not found" });
-      }
+      await targetUser.save();
 
-      res.status(200).json({ success: true, data: user });
+      const safeUser = await User.findById(id).select(
+        "-password -refreshTokenHash",
+      );
+
+      res.status(200).json({
+        success: true,
+        data: safeUser,
+      });
     } catch (error) {
       next(error);
     }

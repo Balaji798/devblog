@@ -35,4 +35,4 @@ jobs:
 
       - name: Run Backend Tests
         working-directory: ./devblog-backend
-        run: npm test || echo "Tests not strictly implemented yet but CI is wired"
+        run: npm test

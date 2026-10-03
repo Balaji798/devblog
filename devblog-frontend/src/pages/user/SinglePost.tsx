@@ -102,10 +102,9 @@ const SinglePost = () => {
     const authorAvatarIndex = post?.data?.author?.avatarIndex ?? getDeterministicValue(post.data?.author?.name || 'User', 4);
     const authorAvatar = avatarArray[authorAvatarIndex - 1] || avatarArray[0];
 
-    const userId = user?.id || (user as any)?._id || (user as any)?.data?.id;
+    const userId = user?.id || (user as any)?._id || (user as any)?.data?.user?.id;
     const likesCount = post.data?.likes?.length || 0;
     const hasLiked = Boolean(userId && post.data?.likes?.includes(userId));
-    console.log(post.data?.likes, user)
     const fallbackCover = `https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80`;
     console.log(authorAvatarIndex)
     return (

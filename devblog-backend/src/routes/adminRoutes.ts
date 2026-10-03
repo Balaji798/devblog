@@ -1,6 +1,12 @@
 import { Router } from "express";
 import { AdminController } from "../controllers/AdminController";
 import { authenticate, authorize } from "../middleware/auth";
+import {
+  PostController,
+  updatePostSchema,
+} from "../controllers/PostController";
+
+import { validate } from "../middleware/validate";
 
 const router = Router();
 
@@ -13,5 +19,10 @@ router.patch("/users/:id", AdminController.updateUser);
 router.get("/posts", AdminController.getPosts);
 router.get("/posts/:id", AdminController.getPostById);
 router.get("/comments", AdminController.getComments);
+router.patch(
+  "/posts/:id",
+  validate(updatePostSchema),
+  PostController.updatePost,
+);
 
 export default router;

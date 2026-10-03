@@ -64,19 +64,30 @@ const AdminPosts = () => {
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        {!post.isDeleted && (
-                                            <button
-                                                onClick={() => {
-                                                    if (confirm('Are you certain you want to permanently delete this post?')) {
-                                                        deleteMutation.mutate(post._id);
-                                                    }
-                                                }}
-                                                className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-[12px] font-bold rounded-lg transition-colors border border-red-100/50"
-                                                disabled={deleteMutation.isPending}
-                                            >
-                                                Delete Post
-                                            </button>
-                                        )}
+                                        <div className="flex items-center gap-2">
+                                            {!post.isDeleted && (
+                                                <>
+                                                    <Link
+                                                        to={`/admin/posts/${post._id}`}
+                                                        className="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[12px] font-bold rounded-lg border border-indigo-100/50"
+                                                    >
+                                                        Edit / View
+                                                    </Link>
+
+                                                    <button
+                                                        onClick={() => {
+                                                            if (confirm("Are you sure you want to delete this post?")) {
+                                                                deleteMutation.mutate(post._id);
+                                                            }
+                                                        }}
+                                                        className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-[12px] font-bold rounded-lg border border-red-100/50"
+                                                        disabled={deleteMutation.isPending}
+                                                    >
+                                                        Delete Post
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

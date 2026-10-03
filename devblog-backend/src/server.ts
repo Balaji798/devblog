@@ -21,7 +21,7 @@ const startServer = async () => {
       logger.info(`Server is running on port ${PORT}`);
     });
   } catch (error) {
-    logger.error("Failed to connect to MongoDB", error);
+    logger.error(error, "Failed to connect to MongoDB");
     process.exit(1);
   }
 };

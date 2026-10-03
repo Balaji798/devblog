@@ -1,32 +1,35 @@
 import bcrypt from "bcrypt";
 import User, { IUser } from "../models/User";
+
 import {
   generateAccessToken,
   generateRefreshToken,
   hashToken,
   verifyTempToken,
+  verifyRefreshToken,
 } from "../utils/token";
 
 export class AuthService {
-  static async register(
-    data: any,
-  ): Promise<{ user: any; accessToken: string; refreshToken: string }> {
+  static async register(data: any) {
     const existing = await User.findOne({ email: data.email });
+
     if (existing) {
       throw new Error("Email already in use");
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
-    const refreshToken = generateRefreshToken();
 
     const user = await User.create({
       name: data.name,
       email: data.email,
       password: hashedPassword,
-      refreshTokenHash: hashToken(refreshToken),
     });
 
     const accessToken = generateAccessToken(user.id, user.role);
+    const refreshToken = generateRefreshToken(user.id, user.role);
+
+    user.refreshTokenHash = hashToken(refreshToken);
+    await user.save();
 
     return {
       user: {
@@ -41,29 +44,32 @@ export class AuthService {
     };
   }
 
-  static async login(
-    email: string,
-    password: string,
-  ): Promise<{ user: any; accessToken: string; refreshToken: string }> {
+  static async login(email: string, password: string) {
     const user = await User.findOne({ email });
-    if (!user || user.googleId || user.facebookId) {
-      // Basic check for wrong provider
-      if (user && !user.password) throw new Error("Use OAuth to sign in");
-      if (!user) throw new Error("Invalid credentials");
+
+    if (!user) {
+      throw new Error("Invalid credentials");
     }
 
     if (!user.isActive) {
       throw new Error("Account deactivated");
     }
 
-    const isMatch = await bcrypt.compare(password, user.password!);
-    if (!isMatch) throw new Error("Invalid credentials");
+    if (!user.password) {
+      throw new Error("Use OAuth to sign in");
+    }
 
-    const refreshToken = generateRefreshToken();
-    user.refreshTokenHash = hashToken(refreshToken);
-    await user.save();
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      throw new Error("Invalid credentials");
+    }
 
     const accessToken = generateAccessToken(user.id, user.role);
+    const refreshToken = generateRefreshToken(user.id, user.role);
+
+    user.refreshTokenHash = hashToken(refreshToken);
+    await user.save();
 
     return {
       user: {
@@ -78,28 +84,39 @@ export class AuthService {
     };
   }
 
-  static async refresh(
-    oldRefreshToken: string,
-  ): Promise<{ accessToken: string; newRefreshToken: string }> {
-    const hash = hashToken(oldRefreshToken);
-    const user = await User.findOne({ refreshTokenHash: hash });
+  static async refresh(oldRefreshToken: string) {
+    const decoded = verifyRefreshToken(oldRefreshToken);
 
-    if (!user || !user.isActive) {
-      throw new Error("Invalid refresh token or inactive user");
+    const user = await User.findById(decoded.id);
+
+    if (!user || !user.isActive || !user.refreshTokenHash) {
+      throw new Error("Invalid refresh token");
     }
 
-    // Token Rotation (invalidates the old hash by replacing it)
-    const newRefreshToken = generateRefreshToken();
+    // Verify the token against the stored hash.
+    if (user.refreshTokenHash !== hashToken(oldRefreshToken)) {
+      throw new Error("Refresh token has already been used or revoked");
+    }
+
+    // Rotate refresh token.
+    const newRefreshToken = generateRefreshToken(user.id, user.role);
+
     user.refreshTokenHash = hashToken(newRefreshToken);
     await user.save();
 
     const accessToken = generateAccessToken(user.id, user.role);
-    return { accessToken, newRefreshToken };
+
+    return {
+      accessToken,
+      newRefreshToken,
+    };
   }
 
   static async logout(refreshToken: string) {
     if (!refreshToken) return;
+
     const hash = hashToken(refreshToken);
+
     await User.updateOne(
       { refreshTokenHash: hash },
       { $unset: { refreshTokenHash: 1 } },
@@ -112,33 +129,33 @@ export class AuthService {
     provider: "google" | "facebook",
     profileName: string,
   ) {
-    // Exact policy: If user exists, we check if they ALREADY linked the other provider.
-    // If they exist but haven't linked securely, we reject implicit linking.
-    // (In a real enterprise system this would send a verification email, but for this assignment we will strictly reject implicit linking if it's already an existing password account that hasn't explicitly been linked).
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
       if (provider === "google" && existingUser.googleId === providerId) {
         return this.updateOAuthSession(existingUser);
       }
+
       if (provider === "facebook" && existingUser.facebookId === providerId) {
         return this.updateOAuthSession(existingUser);
       }
 
       throw new Error(
-        "Account exists with a different provider or password. Explicit linkage required from settings (feature not strictly implemented here).",
+        "Account exists with a different provider. Explicit linkage required.",
       );
     }
 
-    // New user
-    const refreshToken = generateRefreshToken();
     const newUser = await User.create({
       name: profileName,
       email,
       googleId: provider === "google" ? providerId : undefined,
       facebookId: provider === "facebook" ? providerId : undefined,
-      refreshTokenHash: hashToken(refreshToken),
     });
+
+    const refreshToken = generateRefreshToken(newUser.id, newUser.role);
+
+    newUser.refreshTokenHash = hashToken(refreshToken);
+    await newUser.save();
 
     return {
       user: {
@@ -154,10 +171,15 @@ export class AuthService {
   }
 
   private static async updateOAuthSession(user: IUser) {
-    if (!user.isActive) throw new Error("Account deactivated");
-    const refreshToken = generateRefreshToken();
+    if (!user.isActive) {
+      throw new Error("Account deactivated");
+    }
+
+    const refreshToken = generateRefreshToken(user.id, user.role);
+
     user.refreshTokenHash = hashToken(refreshToken);
     await user.save();
+
     return {
       user: {
         id: user.id,
@@ -173,11 +195,28 @@ export class AuthService {
 
   static async completeOAuth(tempToken: string, email: string) {
     const decoded = verifyTempToken(tempToken);
+
     return this.linkOAuth(
       email,
       decoded.providerId,
       decoded.provider,
       decoded.name,
     );
+  }
+
+  static async resetPassword(email: string, newPasswordRaw: string) {
+    const user = await User.findOne({ email });
+    if (!user || (!user.isActive && !user?.isDeleted)) {
+      throw new Error("No active account found for that email address.");
+    }
+
+    const hashedPassword = await bcrypt.hash(newPasswordRaw, 10);
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      { password: hashedPassword },
+      { new: true },
+    );
+
+    return Boolean(updatedUser);
   }
 }

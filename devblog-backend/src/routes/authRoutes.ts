@@ -3,6 +3,8 @@ import {
   AuthController,
   registerSchema,
   loginSchema,
+  facebookCompleteSchema,
+  resetPasswordSchema,
 } from "../controllers/AuthController";
 import { validate } from "../middleware/validate";
 import { authenticate } from "../middleware/auth";
@@ -18,6 +20,12 @@ router.post(
   AuthController.register,
 );
 router.post("/login", authLimiter, validate(loginSchema), AuthController.login);
+router.post(
+  "/reset-password",
+  authLimiter,
+  validate(resetPasswordSchema),
+  AuthController.resetPassword,
+);
 router.post("/refresh", AuthController.refresh);
 router.post("/logout", authenticate, AuthController.logout);
 router.get("/me", authenticate, AuthController.me);
@@ -69,8 +77,8 @@ router.get(
 
 router.post(
   "/facebook/complete",
-  validate(loginSchema),
+  validate(facebookCompleteSchema),
   AuthController.completeFacebook,
-); // loginSchema has email validations, but wait, completeFacebook only explicitly needs email. I'll omit validate for now since we just need email. Let's just define it natively.
+);
 
 export default router;

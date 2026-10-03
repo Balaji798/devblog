@@ -3,7 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Bell } from 'lucide-react';
-import { RootState } from '../../app/store';
+import { type RootState } from '../../app/store';
 import api from '../../lib/axios';
 
 interface Notification {

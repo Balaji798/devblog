@@ -18,6 +18,28 @@ export const loginSchema = z.object({
   }),
 });
 
+export const facebookCompleteSchema = z.object({
+  body: z.object({
+    tempToken: z.string().min(1, "Temporary token is required"),
+    email: z.string().email("Invalid email address"),
+  }),
+});
+
+export const resetPasswordSchema = z.object({
+  body: z
+    .object({
+      email: z.string().email("Invalid email structure"),
+      newPassword: z.string().min(6, "Password must be at least 6 characters"),
+      confirmPassword: z
+        .string()
+        .min(6, "Password must be at least 6 characters"),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      message: "Passwords do not match",
+      path: ["confirmPassword"],
+    }),
+});
+
 export class AuthController {
   static setCookie(res: Response, token: string) {
     res.cookie("jwt_refresh", token, {
@@ -108,6 +130,18 @@ export class AuthController {
         await AuthService.completeOAuth(tempToken, email);
       AuthController.setCookie(res, refreshToken);
       res.status(200).json({ success: true, data: { user, accessToken } });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async resetPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email, newPassword } = req.body;
+      await AuthService.resetPassword(email, newPassword);
+      res
+        .status(200)
+        .json({ success: true, data: "Password forcefully rewritten." });
     } catch (error) {
       next(error);
     }

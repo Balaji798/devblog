@@ -12,6 +12,7 @@ export interface IUser extends Document {
   refreshTokenHash?: string;
   createdAt: Date;
   updatedAt: Date;
+  isDeleted?: boolean;
 }
 
 const UserSchema: Schema = new Schema(

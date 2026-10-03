@@ -1,14 +1,47 @@
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
+const getAccessSecret = () => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET is missing");
+  }
+  return process.env.JWT_SECRET;
+};
+
+const getRefreshSecret = () => {
+  if (!process.env.JWT_REFRESH_SECRET) {
+    throw new Error("JWT_REFRESH_SECRET is missing");
+  }
+  return process.env.JWT_REFRESH_SECRET;
+};
+
 export const generateAccessToken = (userId: string, role: string) => {
-  return jwt.sign({ id: userId, role }, process.env.JWT_SECRET || "secret", {
+  return jwt.sign({ id: userId, role, type: "access" }, getAccessSecret(), {
     expiresIn: "15m",
   });
 };
 
-export const generateRefreshToken = () => {
-  return crypto.randomBytes(40).toString("hex");
+export const generateRefreshToken = (userId: string, role: string) => {
+  return jwt.sign(
+    {
+      id: userId,
+      role,
+      type: "refresh",
+      jti: crypto.randomUUID(),
+    },
+    getRefreshSecret(),
+    { expiresIn: "7d" },
+  );
+};
+
+export const verifyRefreshToken = (token: string) => {
+  const decoded = jwt.verify(token, getRefreshSecret()) as jwt.JwtPayload;
+
+  if (decoded.type !== "refresh" || !decoded.id) {
+    throw new Error("Invalid refresh token");
+  }
+
+  return decoded;
 };
 
 export const hashToken = (token: string) => {
@@ -22,15 +55,17 @@ export const generateTempToken = (
 ) => {
   return jwt.sign(
     { providerId, name, provider, isTemp: true },
-    process.env.JWT_SECRET || "secret",
-    {
-      expiresIn: "15m",
-    },
+    getAccessSecret(),
+    { expiresIn: "15m" },
   );
 };
 
 export const verifyTempToken = (token: string) => {
-  const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret") as any;
-  if (!decoded.isTemp) throw new Error("Invalid token type");
+  const decoded = jwt.verify(token, getAccessSecret()) as jwt.JwtPayload;
+
+  if (!decoded.isTemp) {
+    throw new Error("Invalid token type");
+  }
+
   return decoded;
 };

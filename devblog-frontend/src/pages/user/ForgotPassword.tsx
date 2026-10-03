@@ -1,13 +1,19 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link } from 'react-router-dom';
-import { KeyRound, Mail, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { KeyRound, Mail, ArrowLeft, Lock } from 'lucide-react';
 import api from '../../lib/axios';
 
 const schema = z.object({
-    email: z.string().email('Please enter a valid email address')
+    email: z.string().email('Please enter a valid email address'),
+    newPassword: z.string().min(6, 'Password must be at least 6 characters'),
+    confirmPassword: z.string().min(6, 'Password must be at least 6 characters')
+}).refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"]
 });
 
 type ForgotForm = z.infer<typeof schema>;
@@ -17,7 +23,7 @@ const ForgotPassword = () => {
         resolver: zodResolver(schema)
     });
 
-    const [isSuccess, setIsSuccess] = useState(false);
+    const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
 
@@ -25,10 +31,15 @@ const ForgotPassword = () => {
         setIsLoading(true);
         setErrorMsg('');
         try {
-            await api.post('/auth/forgot-password', data);
-            setIsSuccess(true);
+            await api.post('/auth/reset-password', {
+                email: data.email,
+                newPassword: data.newPassword,
+                confirmPassword: data.confirmPassword
+            });
+            alert("Password forcefully overwritten successfully!");
+            navigate('/login');
         } catch (error: any) {
-            setErrorMsg(error.response?.data?.error || 'Failed to send reset link. Please try again later.');
+            setErrorMsg(error.response?.data?.error || 'Failed to overwrite password.');
         } finally {
             setIsLoading(false);
         }
@@ -45,8 +56,8 @@ const ForgotPassword = () => {
                     <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center mb-4">
                         <KeyRound className="w-6 h-6 text-indigo-600" />
                     </div>
-                    <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Forgot password?</h2>
-                    <p className="text-slate-500 mt-2 text-[15px] px-4">No worries, we'll send you reset instructions.</p>
+                    <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Direct Override</h2>
+                    <p className="text-slate-500 mt-2 text-[15px] px-4">Bypass token verification via core email routing.</p>
                 </div>
 
                 {errorMsg && (
@@ -55,51 +66,65 @@ const ForgotPassword = () => {
                     </div>
                 )}
 
-                {isSuccess ? (
-                    <div className="flex flex-col items-center justify-center py-4 space-y-5 animate-in fade-in zoom-in duration-300">
-                        <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center">
-                            <CheckCircle className="w-8 h-8 text-green-500" />
-                        </div>
-                        <h3 className="font-bold text-[18px] text-slate-900">Check your email</h3>
-                        <p className="text-center text-[14px] text-slate-500 leading-relaxed max-w-[280px]">
-                            We sent a password reset link to your email address. It will expire in 15 minutes.
-                        </p>
-                        <button
-                            onClick={() => window.location.href = '/login'}
-                            className="w-full py-3 mt-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors text-[14px]"
-                        >
-                            Return to log in
-                        </button>
-                    </div>
-                ) : (
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                        <div className="space-y-1.5">
-                            <label className="block text-[13.5px] font-bold text-slate-700">Email Address</label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                    <Mail className="h-[18px] w-[18px] text-slate-400" />
-                                </div>
-                                <input
-                                    {...register('email')}
-                                    type="email"
-                                    placeholder="you@example.com"
-                                    className="w-full rounded-[12px] border border-slate-200 bg-slate-50/50 pl-10 pr-4 py-3 text-[14px] text-slate-800 placeholder-slate-400 focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all outline-none"
-                                />
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                    <div className="space-y-1.5">
+                        <label className="block text-[13.5px] font-bold text-slate-700 text-left">Target Email Address</label>
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <Mail className="h-[18px] w-[18px] text-slate-400" />
                             </div>
-                            {errors.email && <p className="text-red-500 text-[12px] font-medium ml-1">{errors.email.message}</p>}
+                            <input
+                                {...register('email')}
+                                type="email"
+                                placeholder="you@example.com"
+                                className="w-full rounded-[12px] border border-slate-200 bg-slate-50/50 pl-10 pr-4 py-3 text-[14px] text-slate-800 placeholder-slate-400 focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all outline-none"
+                            />
                         </div>
+                        {errors.email && <p className="text-red-500 text-[12px] font-medium ml-1">{errors.email.message}</p>}
+                    </div>
 
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="w-full flex justify-center items-center py-3 px-4 rounded-xl shadow-sm tracking-wide text-[14.5px] font-bold text-white bg-[#5A4AF4] hover:bg-indigo-600 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
-                        >
-                            {isLoading ? (
-                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                            ) : 'Send reset link'}
-                        </button>
-                    </form>
-                )}
+                    <div className="space-y-1.5">
+                        <label className="block text-[13.5px] font-bold text-slate-700 text-left">New Password</label>
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <Lock className="h-[18px] w-[18px] text-slate-400" />
+                            </div>
+                            <input
+                                {...register('newPassword')}
+                                type="password"
+                                placeholder="••••••••"
+                                className="w-full rounded-[12px] border border-slate-200 bg-slate-50/50 pl-10 pr-4 py-3 text-[14px] text-slate-800 placeholder-slate-400 focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all outline-none"
+                            />
+                        </div>
+                        {errors.newPassword && <p className="text-red-500 text-[12px] font-medium ml-1">{errors.newPassword.message}</p>}
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="block text-[13.5px] font-bold text-slate-700 text-left">Confirm Password</label>
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <Lock className="h-[18px] w-[18px] text-slate-400" />
+                            </div>
+                            <input
+                                {...register('confirmPassword')}
+                                type="password"
+                                placeholder="••••••••"
+                                className="w-full rounded-[12px] border border-slate-200 bg-slate-50/50 pl-10 pr-4 py-3 text-[14px] text-slate-800 placeholder-slate-400 focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all outline-none"
+                            />
+                        </div>
+                        {errors.confirmPassword && <p className="text-red-500 text-[12px] font-medium ml-1">{errors.confirmPassword.message}</p>}
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="w-full flex justify-center items-center py-3 px-4 rounded-xl shadow-sm tracking-wide text-[14.5px] font-bold text-white bg-[#5A4AF4] hover:bg-indigo-600 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                        {isLoading ? (
+                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        ) : 'Change Password'}
+                    </button>
+                </form>
             </div>
         </div>
     );

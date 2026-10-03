@@ -29,8 +29,8 @@ const Dashboard = () => {
 
     // Simulate user isolation (if API just returned all)
     const allPosts = data?.data?.posts || [];
-    const myPosts = allPosts.filter((post: any) => post.author._id === user?.id || post.author.name === user?.name);
-
+    const myPosts = allPosts.filter((post: any) => post.author._id === user?.id || post.author.name === user?.data?.user?.name);
+    console.log(user)
     const tabs = [
         { name: 'My Posts', path: '/dashboard', icon: LayoutDashboard },
         { name: 'Drafts', path: '#', icon: FileEdit },
